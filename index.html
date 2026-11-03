@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#fff8f2">
+<title>Opam uchun mini-test</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root {
+  --site-primary: #f2a36f;
+  --site-on-primary: #2c160d;
+  --site-background: #fff8f2;
+  --site-on-background: #38251e;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  min-height: 100%;
+  font-family: "Trebuchet MS", system-ui, sans-serif;
+}
+body {
+  background: #fff8f2;
+  color: #38251e;
+}
+#app {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+}
+main {
+  width: min(100%, 520px);
+}
+.card {
+  background: white;
+  border: 1px solid #f1d8c8;
+  border-radius: 28px;
+  padding: clamp(24px, 6vw, 38px);
+  box-shadow: 0 18px 50px #8a54301c;
+  text-align: center;
+}
+.kicker {
+  color: #9b6345;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+h1 {
+  font-size: clamp(28px, 7vw, 40px);
+  line-height: 1.1;
+  margin: 12px 0;
+}
+.sub {
+  color: #80685c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.progress-wrap { margin: 26px 0 28px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #8b7062;
+  margin-bottom: 9px;
+}
+.track {
+  height: 8px;
+  border-radius: 99px;
+  background: #f5e6dc;
+  overflow: hidden;
+}
+.fill {
+  height: 100%;
+  width: 10%;
+  background: var(--site-primary);
+  border-radius: inherit;
+  transition: width .35s ease;
+}
+.question {
+  font-size: clamp(21px, 5vw, 27px);
+  line-height: 1.3;
+  font-weight: 800;
+  margin: 0 0 22px;
+}
+.answers {
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+}
+.answer {
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid #efd4c3;
+  border-radius: 16px;
+  padding: 13px 16px;
+  background: #fffaf6;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform .18s ease;
+  touch-action: manipulation;
+}
+.answer.correct {
+  background: var(--site-primary);
+  border-color: var(--site-primary);
+  color: var(--site-on-primary);
+}
+.hint {
+  min-height: 22px;
+  margin: 16px 0 0;
+  font-size: 12px;
+  color: #a06b4e;
+}
+.footer {
+  margin-top: 22px;
+  font-size: 11px;
+  color: #a18a7d;
+}
+.final-emoji { font-size: 58px; margin: 10px 0; }
+.final-text {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #80685c;
+}
+.restart {
+  margin-top: 22px;
+  border: 0;
+  border-radius: 15px;
+  padding: 14px 22px;
+  background: var(--site-primary);
+  color: var(--site-on-primary);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <main>
+    <section class="card" aria-live="polite">
+      <div class="kicker">A little quiz for my sister</div>
+      <h1>Opajon, meni qanchalik bilasiz? 💗</h1>
+      <p class="sub" id="intro">10 ta savolga javob bering. Faqat bitta javob joyida turadi… 😉</p>
+
+      <div class="progress-wrap" id="progressWrap">
+        <div class="progress-label">
+          <span id="stepLabel">1 / 10</span>
+          <span>QUIZ PROGRESS</span>
+        </div>
+        <div class="track"><div class="fill" id="progress"></div></div>
+      </div>
+
+      <h2 class="question" id="question">Kayfiyatingiz qanaqa?</h2>
+      <div class="answers" id="answers"></div>
+      <p class="hint" id="hint">Noto‘g‘ri javobni tutib ko‘ring-chi! 😄</p>
+      <div class="footer" id="footer">Made with love ♡</div>
+    </section>
+  </main>
+</div>
+
+<script>
+if (window.Telegram && window.Telegram.WebApp) {
+  window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+}
+
+const questions = [
+  { q: "Kayfiyatingiz qanaqa?", a: ["Xafa", "O‘rtacha", "Zo‘r ✨"], correct: 2 },
+  { q: "Meni qanchalik yaxshi bilasiz?", a: ["10%", "50%", "100%"], correct: 2 },
+  { q: "Mening yoqtirgan rangim qaysi?", a: ["Qizil", "Sabzirang", "Qora"], correct: 1 },
+  { q: "Kelajakda qaysi sohada ishlashni xohlayman?", a: ["Medicine", "Software Engineering", "Law"], correct: 1 },
+  { q: "Qaysi kompaniyada ishlashni orzu qilaman?", a: ["Google", "Microsoft", "Amazon"], correct: 0 },
+  { q: "Qaysi yo‘nalish menga ko‘proq qiziq?", a: ["Artificial Intelligence", "Fashion Design", "Medicine"], correct: 0 },
+  { q: "Qaysi davlatda o‘qishni xohlayman?", a: ["USA", "Italy", "Germany"], correct: 0 },
+  { q: "Men uchun nima muhimroq?", a: ["Knowledge", "Money", "Recognition"], correct: 0 },
+  { q: "Qaysi universitetda o‘qishni orzu qilaman?", a: ["MIT", "Harvard", "Oxford"], correct: 0 },
+  { q: "Kelajakda kim bo‘lishni xohlayman?", a: ["Software Engineer", "Data Scientist", "Entrepreneur"], correct: 1 }
+];
+
+let current = 0;
+
+const qEl = document.getElementById('question');
+const answersEl = document.getElementById('answers');
+const hintEl = document.getElementById('hint');
+const progressEl = document.getElementById('progress');
+const stepLabel = document.getElementById('stepLabel');
+const intro = document.getElementById('intro');
+const progressWrap = document.getElementById('progressWrap');
+
+function renderQuestion() {
+  const item = questions[current];
+
+  qEl.textContent = item.q;
+  stepLabel.textContent = `${current + 1} / ${questions.length}`;
+  progressEl.style.width = `${(current / questions.length) * 100}%`;
+  hintEl.textContent = 'Noto‘g‘ri javobni tutib ko‘ring-chi! 😄';
+  answersEl.innerHTML = '';
+
+  item.a.forEach((answer, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `answer ${index === item.correct ? 'correct' : ''}`;
+    button.textContent = answer;
+
+    if (index === item.correct) {
+      button.addEventListener('click', () => {
+        current++;
+        if (current < questions.length) {
+          renderQuestion();
+        } else {
+          showFinish();
+        }
+      });
+    } else {
+      const escape = (event) => {
+        event.preventDefault();
+        const dx = Math.round((Math.random() * 2 - 1) * 115);
+        const dy = Math.round((Math.random() * 2 - 1) * 45);
+        button.style.transform = `translate(${dx}px, ${dy}px)`;
+        hintEl.textContent = 'Hehe, bu javob qochib ketdi! Boshqasini sinab ko‘ring 😜';
+      };
+
+      button.addEventListener('pointerenter', escape);
+      button.addEventListener('pointerdown', escape);
+      button.addEventListener('click', escape);
+    }
+
+    answersEl.appendChild(button);
+  });
+}
+
+function showFinish() {
+  progressEl.style.width = '100%';
+  stepLabel.textContent = '10 / 10';
+  progressWrap.style.display = 'none';
+
+  qEl.textContent = 'Test yakunlandi!';
+
+  answersEl.innerHTML = `
+    <div class="final-emoji">🏆💗</div>
+    <div class="final-text">
+      Tabriklayman, opajon! Siz meni juda yaxshi bilasiz.
+      Sizga katta-katta rahmat! ❤️
+    </div>
+    <button class="restart" id="restart">Yana bir bor o‘ynash</button>
+  `;
+
+  hintEl.textContent = 'Siz eng zo‘r opasiz!';
+  intro.textContent = '10 ta savolning barchasiga javob berdingiz.';
+
+  document.getElementById('restart').addEventListener('click', () => {
+    current = 0;
+    progressWrap.style.display = 'block';
+    intro.textContent = '10 ta savolga javob bering. Faqat bitta javob joyida turadi… 😉';
+    renderQuestion();
+  });
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
